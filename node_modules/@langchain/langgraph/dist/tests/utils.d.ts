@@ -1,0 +1,37 @@
+import { CallbackManagerForLLMRun } from "@langchain/core/callbacks/manager";
+import { BaseChatModel, BaseChatModelParams } from "@langchain/core/language_models/chat_models";
+import { BaseMessage } from "@langchain/core/messages";
+import { ChatResult } from "@langchain/core/outputs";
+import { RunnableConfig } from "@langchain/core/runnables";
+import { Tool } from "@langchain/core/tools";
+import { MemorySaver } from "../checkpoint/memory.js";
+import { Checkpoint, CheckpointMetadata } from "../checkpoint/base.js";
+export interface FakeChatModelArgs extends BaseChatModelParams {
+    responses: BaseMessage[];
+}
+export declare class FakeChatModel extends BaseChatModel {
+    responses: BaseMessage[];
+    constructor(fields: FakeChatModelArgs);
+    _combineLLMOutput(): never[];
+    _llmType(): string;
+    _generate(messages: BaseMessage[], options?: this["ParsedCallOptions"], runManager?: CallbackManagerForLLMRun): Promise<ChatResult>;
+}
+export declare class FakeToolCallingChatModel extends BaseChatModel {
+    sleep?: number;
+    responses?: BaseMessage[];
+    thrownErrorString?: string;
+    idx: number;
+    constructor(fields: {
+        sleep?: number;
+        responses?: BaseMessage[];
+        thrownErrorString?: string;
+    } & BaseChatModelParams);
+    _llmType(): string;
+    _generate(messages: BaseMessage[], _options: this["ParsedCallOptions"], _runManager?: CallbackManagerForLLMRun): Promise<ChatResult>;
+    bindTools(_: Tool[]): FakeToolCallingChatModel;
+}
+export declare class MemorySaverAssertImmutable extends MemorySaver {
+    storageForCopies: Record<string, Record<string, string>>;
+    constructor();
+    put(config: RunnableConfig, checkpoint: Checkpoint, metadata: CheckpointMetadata): Promise<RunnableConfig>;
+}
